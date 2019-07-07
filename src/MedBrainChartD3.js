@@ -95,22 +95,15 @@ class MedBrainChartD3 extends React.Component {
   drawData = () => {
     const { data, width, height } = this.props;
     if (!data) return;
-    console.log(data.nodes.length, data.links.length);
 
     this.simulation = d3
       .forceSimulation()
-      .force(
-        "link",
-        d3
-          .forceLink()
-          .distance(100)
-          .id(d => d.id)
-      )
-      .force("collide", d3.forceCollide(DOT_RADIUS + 2).iterations(2)) // 力学碰撞检测
-      .force("charge", d3.forceManyBody().distanceMin(DOT_RADIUS * 3))
+      .force("link", d3.forceLink().distance(70).id(d => d.id))
+      .force("collide", d3.forceCollide(DOT_RADIUS + 1).iterations(2)) // 力学碰撞检测
+      .force("charge", d3.forceManyBody().strength(-200))
       .force("center", d3.forceCenter(width / 2, height / 2))
-      .force("x", d3.forceX(0))
-      .force("y", d3.forceY(0));
+      .force("x", d3.forceX(width / 2))
+      .force("y", d3.forceY(height / 2));
 
     // 定义箭头
     makerArrowForSvg(this.svg, 6, 8, LINE_COLOR, DOT_RADIUS);
@@ -173,10 +166,9 @@ class MedBrainChartD3 extends React.Component {
       });
       linkText
         .select("textPath")
-        // .append("textPath")
         .attr("xlink:href", d => `#link_path_${d.id}`)
-        .style("text-anchor","middle")
-        .attr("startOffset","50%")
+        .style("text-anchor", "middle")
+        .attr("startOffset", "50%")
         .text(d => TypeLabel[d.type]);
 
       nodeCircle.attr("cx", d => d.x).attr("cy", d => d.y);
@@ -200,6 +192,32 @@ class MedBrainChartD3 extends React.Component {
     // 绑定力学仿真
     this.simulation.nodes(data.nodes).on("tick", onTicked);
     this.simulation.force("link").links(data.links);
+
+    // 焦点高亮显示功能
+    // 存储点线关联关系
+    const adjList = [];
+    data.links.forEach(function(d) {
+      adjList[d.source.id + "-" + d.target.id] = true;
+      adjList[d.target.id + "-" + d.source.id] = true;
+    });
+    function neigh(a, b) {
+      return a === b || adjList[a + "-" + b];
+    }
+
+    function focus(d) {
+      const { id } = d;
+      nodes.style("opacity", (o) => {
+        return neigh(id, o.id) ? 1 : 0.1;
+      });
+      links.style("opacity", (o) => {
+        return o.source.id === id || o.target.id === id ? 1 : 0.1;
+      });
+    }
+    function unFocus() {
+      nodes.style("opacity", 1);
+      links.style("opacity", 1);
+    }
+    nodes.on("mouseover", focus).on("mouseout", unFocus);
   };
   setSize = () => {
     const { width, height } = this.props;
@@ -210,7 +228,7 @@ class MedBrainChartD3 extends React.Component {
 
   onDragStart = () => {
     if (!d3.event.active) {
-      this.simulation.alphaTarget(0.3).restart();
+      this.simulation.alphaTarget(0.3).restart(); // 衰减系数
     }
     d3.event.subject.fx = this.transform.invertX(d3.event.x);
     d3.event.subject.fy = this.transform.invertY(d3.event.y);
