@@ -3,7 +3,10 @@ import * as d3 from "d3";
 import isEqual from "lodash/isEqual";
 
 const RATIO = 1; // window.devicePixelRatio || 1;
-const DOT_RADIUS = 5; // 圆点大小
+const DOT_RADIUS = 20; // 圆点大小
+const FONT_SIZE_DOT = 8;
+const FONT_SIZE_LINK = 6;
+const LINE_COLOR = "#ccc";
 
 class MedBrainChartD3 extends React.Component {
   constructor(props) {
@@ -31,17 +34,25 @@ class MedBrainChartD3 extends React.Component {
 
     this.simulation = d3
       .forceSimulation()
-      .force("center", d3.forceCenter(cvsWidth / 2, cvsHeight / 2))
-      .force("x", d3.forceX(cvsWidth / 2).strength(0.1))
-      .force("y", d3.forceY(cvsHeight / 2).strength(0.1))
-      .force("charge", d3.forceManyBody().strength(-50))
       .force(
         "link",
         d3
           .forceLink()
-          .strength(1)
+          .distance(70)
           .id(d => d.id)
-      );
+      )
+      .force("collide", d3.forceCollide(DOT_RADIUS + 2).iterations(2)) // 力学碰撞检测
+      .force(
+        "charge",
+        d3
+          .forceManyBody()
+          .strength(-300)
+          .distanceMin(60)
+          .distanceMax(500)
+      )
+      .force("center", d3.forceCenter(cvsWidth / 2, cvsHeight / 2))
+      .force("x", d3.forceX(cvsWidth / 2))
+      .force("y", d3.forceY(cvsHeight / 2));
 
     const drawN = ele => {
       this.drawNode(context, ele);
@@ -55,16 +66,9 @@ class MedBrainChartD3 extends React.Component {
       context.translate(this.transform.x, this.transform.y);
       context.scale(this.transform.k, this.transform.k);
 
-      context.beginPath();
       data.links.forEach(drawL);
-      context.strokeStyle = "#aaa";
-      context.stroke();
 
-      context.beginPath();
       data.nodes.forEach(drawN);
-      context.fill();
-      context.strokeStyle = "#fff";
-      context.stroke();
 
       context.restore();
       console.log("draw end");
@@ -98,13 +102,36 @@ class MedBrainChartD3 extends React.Component {
       .on("dblclick.zoom", null); // 取消双击放大
   };
   drawLink = (context, d) => {
+    context.save();
+    context.beginPath();
     context.moveTo(d.source.x, d.source.y);
     context.lineTo(d.target.x, d.target.y);
+    context.strokeStyle = LINE_COLOR;
+    context.stroke();
+    context.restore();
   };
 
   drawNode = (context, d) => {
+    context.save();
+    context.beginPath();
+    context.fillStyle = d.background;
     context.moveTo(d.x + DOT_RADIUS, d.y);
     context.arc(d.x, d.y, DOT_RADIUS, 0, 2 * Math.PI);
+    context.fill();
+    context.strokeStyle = d.borderColor;
+    context.stroke();
+
+    context.font=`${FONT_SIZE_DOT}px`
+    context.textBaseline = "middle"; //设置文本的垂直对齐方式
+    context.textAlign = "center"; //设置文本的水平对齐方式
+    context.fillStyle = d.color;
+    context.fillText(
+      d.label && d.label.length > 3 ? d.label.substr(0, 3) + "..." : d.label,
+      d.x,
+      d.y
+    );
+
+    context.restore();
   };
 
   getDragSubject = data => {

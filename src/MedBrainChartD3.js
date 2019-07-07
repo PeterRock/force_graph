@@ -7,53 +7,6 @@ const FONT_SIZE_DOT = 8;
 const FONT_SIZE_LINK = 6;
 const LINE_COLOR = "#ccc";
 
-const TypeLabel = {
-  HasDefined: "助诊因子",
-  HasSymptom: "症状体征",
-  HasFactor: "检查指标",
-  HasDiseaseHistory: "既往史",
-  HasFamilyHistory: "家族遗传",
-  HasHistoryProduct: "曾用产品"
-};
-const VertexColors = {
-  // 疾病
-  Disease: {
-    background: "#f16667",
-    color: "#fff",
-    borderColor: "#ec2f31"
-  },
-  // 症状
-  Symptom: {
-    background: "#ffc454",
-    color: "#333",
-    borderColor: "#d8a014"
-  },
-  // 既往史
-  HistoryDisease: {
-    background: "#d9c8ae",
-    color: "#333",
-    borderColor: "#c0a378"
-  },
-  // 家族遗传
-  FamilyHistory: {
-    background: "#8dcc93",
-    color: "#333",
-    borderColor: "#5eb665"
-  },
-  // 曾用产品
-  HistoryProduct: {
-    background: "#4c8eda",
-    color: "#fff",
-    borderColor: "#2870c2"
-  },
-  // 检查指标
-  InspectionElementFactor: {
-    background: "#ecb5c9",
-    color: "#333",
-    borderColor: "#da7298"
-  }
-};
-
 const Arrow = ({ width, height, color, refDotRadius }) => {
   const arrow_path = `M0,0 L0,${width} L${height},${width / 2} L0,0`; // 宽6高8
   const max = Math.max(width, height); // 取最大边做为ViewBox区域,保证完整显示
@@ -87,7 +40,7 @@ class MedBrainChartD3 extends React.Component {
   }
   componentDidUpdate(prevProps, prevState) {
     if (!isEqual(prevProps.data, this.props.data)) {
-      this.drawData();
+      requestAnimationFrame(this.drawData);
     }
   }
 
@@ -95,6 +48,7 @@ class MedBrainChartD3 extends React.Component {
     const { data, width, height } = this.props;
     if (!data) return;
 
+    // requestAnimationFrame(this.drawData)
     this.simulation = d3
       .forceSimulation()
       .force(
@@ -151,14 +105,14 @@ class MedBrainChartD3 extends React.Component {
     const nodeCircle = nodes
       .append("circle")
       .attr("r", DOT_RADIUS)
-      .attr("fill", d => VertexColors[d.group].background)
-      .attr("stroke", d => VertexColors[d.group].borderColor);
+      .attr("fill", d => d.background)
+      .attr("stroke", d => d.borderColor);
     const nodeText = nodes
       .append("text")
       .attr("font-size", FONT_SIZE_DOT)
       .style("dominant-baseline", "middle")
       .style("text-anchor", "middle")
-      .attr("fill", d => VertexColors[d.group].color)
+      .attr("fill", d => d.color)
       .text(d =>
         d.label && d.label.length > 3 ? d.label.substr(0, 3) + "..." : d.label
       );
@@ -176,7 +130,7 @@ class MedBrainChartD3 extends React.Component {
         .attr("xlink:href", d => `#link_path_${d.id}`)
         .style("text-anchor", "middle")
         .attr("startOffset", "50%")
-        .text(d => TypeLabel[d.type]);
+        .text(d => d.label);
 
       nodeCircle.attr("cx", d => d.x).attr("cy", d => d.y);
       nodeText.attr("x", d => d.x).attr("y", d => d.y);
