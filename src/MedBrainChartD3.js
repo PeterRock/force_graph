@@ -54,25 +54,24 @@ const VertexColors = {
   }
 };
 
-function makerArrowForSvg(svg, width, height, color, refDotRadius) {
-  // 定义箭头
+const Arrow = ({ width, height, color, refDotRadius }) => {
   const arrow_path = `M0,0 L0,${width} L${height},${width / 2} L0,0`; // 宽6高8
   const max = Math.max(width, height); // 取最大边做为ViewBox区域,保证完整显示
-  svg
-    .append("defs")
-    .append("marker")
-    .attr("id", "arrow")
-    .attr("markerUnits", "strokeWidth")
-    .attr("markerWidth", max)
-    .attr("markerHeight", max)
-    .attr("viewBox", `0 0 ${max} ${max}`)
-    .attr("refX", height + refDotRadius - 1)
-    .attr("refY", width / 2)
-    .attr("orient", "auto")
-    .append("path")
-    .attr("d", arrow_path)
-    .attr("fill", color);
-}
+  return (
+    <marker
+      id="arrow"
+      markerUnits="strokeWidth"
+      markerWidth={max}
+      markerHeight={max}
+      viewBox={`0 0 ${max} ${max}`}
+      refX={height + refDotRadius - 1}
+      refY={width / 2}
+      orient="auto"
+    >
+      <path d={arrow_path} fill={color} />
+    </marker>
+  );
+};
 
 class MedBrainChartD3 extends React.Component {
   constructor(props) {
@@ -81,8 +80,8 @@ class MedBrainChartD3 extends React.Component {
     this.transform = d3.zoomIdentity;
   }
   componentDidMount() {
-    this.svg = d3.select(this.dom).append("svg");
-    this.chartLayer = this.svg.append("g").classed("charLayer", true);
+    this.svg = d3.select(this.svgEl);
+    this.chartLayer = d3.select(this.chartLayerEl);
     this.setSize();
     this.drawData();
   }
@@ -98,19 +97,28 @@ class MedBrainChartD3 extends React.Component {
 
     this.simulation = d3
       .forceSimulation()
-      .force("link", d3.forceLink().distance(70).id(d => d.id))
+      .force(
+        "link",
+        d3
+          .forceLink()
+          .distance(70)
+          .id(d => d.id)
+      )
       .force("collide", d3.forceCollide(DOT_RADIUS + 1).iterations(2)) // 力学碰撞检测
-      .force("charge", d3.forceManyBody().strength(-200).distanceMin(60).distanceMax(500))
+      .force(
+        "charge",
+        d3
+          .forceManyBody()
+          .strength(-200)
+          .distanceMin(60)
+          .distanceMax(500)
+      )
       .force("center", d3.forceCenter(width / 2, height / 2))
       .force("x", d3.forceX(width / 2))
       .force("y", d3.forceY(height / 2));
 
-    // 定义箭头
-    makerArrowForSvg(this.svg, 6, 8, LINE_COLOR, DOT_RADIUS);
-
     const links = this.chartLayer
-      .append("g")
-      .attr("class", "links")
+      .select("#links")
       .selectAll("line")
       .data(data.links)
       .enter()
@@ -128,8 +136,7 @@ class MedBrainChartD3 extends React.Component {
     linkText.append("textPath");
 
     const nodes = this.chartLayer
-      .append("g")
-      .attr("class", "nodes")
+      .select("#nodes")
       .selectAll("circle")
       .data(data.nodes)
       .enter()
@@ -206,10 +213,10 @@ class MedBrainChartD3 extends React.Component {
 
     function focus(d) {
       const { id } = d;
-      nodes.style("opacity", (o) => {
+      nodes.style("opacity", o => {
         return neigh(id, o.id) ? 1 : 0.1;
       });
-      links.style("opacity", (o) => {
+      links.style("opacity", o => {
         return o.source.id === id || o.target.id === id ? 1 : 0.1;
       });
     }
@@ -247,13 +254,33 @@ class MedBrainChartD3 extends React.Component {
 
   render() {
     const { width, height } = this.props;
+
     return (
-      <div
-        style={{ width, height }}
+      <svg
         ref={ref => {
-          this.dom = ref;
+          this.svgEl = ref;
         }}
-      />
+        width={width}
+        height={height}
+      >
+        <defs>
+          <Arrow
+            width={6}
+            height={8}
+            color={LINE_COLOR}
+            refDotRadius={DOT_RADIUS}
+          />
+        </defs>
+        <g
+          ref={ref => {
+            this.chartLayerEl = ref;
+          }}
+          id="chartLayer"
+        >
+          <g id="links" />
+          <g id="nodes" />
+        </g>
+      </svg>
     );
   }
 }
