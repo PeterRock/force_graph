@@ -59,7 +59,7 @@ class MedBrainChartD3 extends React.Component {
         "link",
         d3
           .forceLink()
-          .distance(70)
+          .distance(60)
           .id(d => d.id)
       )
       .force("collide", d3.forceCollide(DOT_RADIUS + 1).iterations(2)) // 力学碰撞检测
@@ -68,8 +68,8 @@ class MedBrainChartD3 extends React.Component {
         d3
           .forceManyBody()
           .strength(-200)
-          .distanceMin(60)
-          .distanceMax(1000)
+          .distanceMin(100)
+          .distanceMax(800)
       )
       .force("center", d3.forceCenter(width / 2, height / 2))
       .force("x", d3.forceX(width / 2))
