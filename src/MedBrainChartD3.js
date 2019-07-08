@@ -120,6 +120,9 @@ class MedBrainChartD3 extends React.Component {
       .text(d =>
         d.label && d.label.length > 3 ? d.label.substr(0, 3) + "..." : d.label
       );
+    nodes
+      .append("title")
+      .text(d => d.label.length > 3 ? d.label : '')
 
     const onTicked = function() {
       linkLine.attr("d", d => {
