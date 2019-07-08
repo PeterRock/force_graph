@@ -26,6 +26,10 @@ const Arrow = ({ width, height, color, refDotRadius }) => {
   );
 };
 
+const stop = (e) => {
+  e.preventDefault() // 阻止默认的处理方式(阻止下拉滑动的效果)
+  e.stopPropagation() // 组织拖动冒泡
+}
 class MedBrainChartD3 extends React.Component {
   constructor(props) {
     super(props);
@@ -65,7 +69,7 @@ class MedBrainChartD3 extends React.Component {
           .forceManyBody()
           .strength(-200)
           .distanceMin(60)
-          .distanceMax(500)
+          .distanceMax(1000)
       )
       .force("center", d3.forceCenter(width / 2, height / 2))
       .force("x", d3.forceX(width / 2))
@@ -98,9 +102,9 @@ class MedBrainChartD3 extends React.Component {
       .call(
         d3
           .drag()
-          .on("start", this.onDragStart)
+          .on("start", (d) => { focus(d); this.onDragStart() })
           .on("drag", this.onDragged)
-          .on("end", this.onDragEnd)
+          .on("end", () => { unFocus(); this.onDragEnd() })
       );
     const nodeCircle = nodes
       .append("circle")
@@ -178,7 +182,7 @@ class MedBrainChartD3 extends React.Component {
       nodes.style("opacity", 1);
       links.style("opacity", 1);
     }
-    nodes.on("mouseover", focus).on("mouseout", unFocus);
+    // nodes.on("mouseover", focus).on("mouseout", unFocus);
   };
   setSize = () => {
     const { width, height } = this.props;
@@ -216,6 +220,8 @@ class MedBrainChartD3 extends React.Component {
         }}
         width={width}
         height={height}
+        onMouseDown={stop}
+        onTouchStart={stop}
       >
         <defs>
           <Arrow
