@@ -48,7 +48,7 @@ class MedBrainChartD3 extends React.Component {
           .forceManyBody()
           .strength(-300)
           .distanceMin(60)
-          .distanceMax(500)
+          .distanceMax(1000)
       )
       .force("center", d3.forceCenter(cvsWidth / 2, cvsHeight / 2))
       .force("x", d3.forceX(cvsWidth / 2))
