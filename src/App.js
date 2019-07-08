@@ -2,7 +2,8 @@ import React from "react";
 import smallDemoData from "./smallDemo.json";
 import demoData from "./demo.json";
 // import MedBrainChart from "./MedBrainChart";
-import MedBrainChartD3 from "./MedBrainChartD3.canvas";
+import MedBrainChartD3 from "./MedBrainChartD3";
+import D3Force from "./D3Force";
 import "./App.css";
 
 const TypeLabel = {
@@ -82,19 +83,21 @@ class App extends React.Component {
 
   render() {
     const { data } = this.state;
+    const width = window.innerWidth
+    const height = window.innerHeight
     return (
-      <div className="App">
-        {/* <header className="App-header">
-          <section>
-            <MedBrainChart data={data} width={800} height={600} />
-          </section>
-        </header> */}
-        <header className="App-header">
-          <section>
-            <MedBrainChartD3 data={data} width={800} height={600} />
-          </section>
-        </header>
-      </div>
+        <D3Force data={data} width={width} height={height} />
+      // <div className="App">
+      //   {/* <header className="App-header">
+      //     <section>
+      //       <MedBrainChart data={data} width={800} height={600} />
+      //     </section>
+      //   </header> */}
+      //   <header className="App-header">
+      //     <section>
+      //     </section>
+      //   </header>
+      // </div>
     );
   }
 }

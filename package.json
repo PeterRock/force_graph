@@ -6,6 +6,7 @@
     "d3": "^5.9.7",
     "echarts": "^4.2.1",
     "lodash": "^4.17.11",
+    "pixi.js": "^5.0.4",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-scripts": "3.0.1"
