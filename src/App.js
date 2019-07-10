@@ -18,38 +18,56 @@ const VertexColors = {
   // 疾病
   Disease: {
     background: "#f16667",
+    backgroundHex: 0xf16667,
     color: "#fff",
-    borderColor: "#ec2f31"
+    colorHex: 0xfff333,
+    borderColor: "#ec2f31",
+    borderColorHex: 0xec2f31
   },
   // 症状
   Symptom: {
     background: "#ffc454",
+    backgroundHex: 0xffc454,
     color: "#333",
-    borderColor: "#d8a014"
+    colorHex: 0x333333,
+    borderColor: "#d8a014",
+    borderColorHex: 0xd8a014
   },
   // 既往史
   HistoryDisease: {
     background: "#d9c8ae",
+    backgroundHex: 0xd9c8ae,
     color: "#333",
-    borderColor: "#c0a378"
+    colorHex: 0x333333,
+    borderColor: "#c0a378",
+    borderColorHex: 0xc0a378
   },
   // 家族遗传
   FamilyHistory: {
     background: "#8dcc93",
+    backgroundHex: 0x8dcc93,
     color: "#333",
-    borderColor: "#5eb665"
+    colorHex: 0x333333,
+    borderColor: "#5eb665",
+    borderColorHex: 0x5eb665
   },
   // 曾用产品
   HistoryProduct: {
     background: "#4c8eda",
+    backgroundHex: 0x4c8eda,
     color: "#fff",
-    borderColor: "#2870c2"
+    colorHex: 0xfff333,
+    borderColor: "#2870c2",
+    borderColorHex: 0x2870c2
   },
   // 检查指标
   InspectionElementFactor: {
     background: "#ecb5c9",
+    backgroundHex: 0xecb5c9,
     color: "#333",
-    borderColor: "#da7298"
+    colorHex: 0x333333,
+    borderColor: "#da7298",
+    borderColorHex: 0xda7298
   }
 };
 
